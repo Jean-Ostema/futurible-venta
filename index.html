@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a4ea3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="App">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>App</title>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --azul: #0a4ea3; --azul2: #123c7a; --cian: #3ec8d6; --violeta: #7c5cff; --rosa: #ff6fa3;
+    --amarillo: #ffb703; --verde: #2fbf8f; --naranja: #f3722c;
+    --texto: #15233b; --gris: #5b6b82; --borde: rgba(10,78,163,.14);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--texto); min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #c9e3ff 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, #d9ccff 0%, transparent 60%),
+      linear-gradient(180deg, #9dc3f8 0%, #b9d6fb 40%, #eef5ff 100%);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 14px 14px 60px; }
+  .hero {
+    display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 22px; color: #fff;
+    background: linear-gradient(120deg, var(--azul) 0%, var(--violeta) 60%, var(--cian) 120%);
+    box-shadow: 0 14px 40px rgba(10,78,163,.35); position: relative; overflow: hidden;
+  }
+  .hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .hero img { width: 100px; height: 100px; border-radius: 18px; background: #9dc3f8; padding: 8px; object-fit: contain; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+  .hero h1 { margin: 0; font-size: 1.25rem; letter-spacing: .4px; }
+  .hero p { margin: 2px 0 0; opacity: .9; font-size: .9rem; }
+  .nav { display: flex; gap: 8px; margin: 14px 0 8px; background: rgba(255,255,255,.6); backdrop-filter: blur(10px); padding: 6px; border-radius: 16px; border: 1px solid var(--borde); }
+  .nav button, .subnav button {
+    flex: 1; border: 0; background: transparent; color: var(--azul); padding: 11px; border-radius: 12px;
+    font-weight: 700; font-size: .95rem; cursor: pointer; transition: .2s;
+  }
+  .nav button.activa, .subnav button.activa { background: linear-gradient(120deg, var(--azul), var(--violeta)); color: #fff; box-shadow: 0 6px 16px rgba(10,78,163,.3); }
+  .subnav { display: flex; gap: 8px; margin: 10px 0 14px; background: rgba(255,255,255,.45); padding: 5px; border-radius: 14px; }
+  .subnav button { font-size: .88rem; padding: 9px; }
+  .barra { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .85rem; font-weight: 700; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.7); margin-bottom: 10px; color: var(--azul2); }
+  .barra.pendiente { background: #fff4d6; color: #8a5a00; }
+  .barra.sinconexion { background: #fbdcdc; color: #8b1e1e; }
+  .card {
+    background: rgba(255,255,255,.78); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.9);
+    border-radius: 20px; padding: 18px; box-shadow: 0 10px 30px rgba(10,78,163,.12); margin-bottom: 16px;
+  }
+  .card h2 { font-size: 1rem; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card h2 small { font-weight: 500; color: var(--gris); font-size: .8rem; margin-left: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 820px) { .grid2 { grid-template-columns: 1fr 1fr; } .kpis { grid-template-columns: repeat(6, 1fr) !important; } }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label { display: block; font-size: .84rem; font-weight: 600; margin: 12px 0 5px; color: var(--azul2); }
+  label .req { color: #d64545; }
+  input, select, textarea {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1.5px solid #c7dcf6; border-radius: 12px;
+    background: #fff; color: var(--texto); font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cian); box-shadow: 0 0 0 4px rgba(62,200,214,.22); }
+  input[type=checkbox] { width: auto; }
+  textarea { min-height: 72px; resize: vertical; }
+  .seccion { font-size: .78rem; text-transform: uppercase; letter-spacing: 1px; color: var(--violeta); font-weight: 800; margin: 18px 0 2px; }
+  button.principal {
+    width: 100%; margin-top: 18px; padding: 15px; font-size: 1rem; font-weight: 800; border: none; border-radius: 14px;
+    background: linear-gradient(120deg, var(--azul), var(--violeta)); color: #fff; cursor: pointer; box-shadow: 0 10px 22px rgba(10,78,163,.3);
+  }
+  button.sec { width: auto; padding: 9px 14px; border-radius: 12px; border: 1.5px solid var(--azul); background: #fff; color: var(--azul); font-weight: 700; cursor: pointer; font-size: .85rem; }
+  button.peligro { border-color: #d64545; color: #b42323; }
+  button:disabled { opacity: .6; cursor: default; }
+  .msg { margin-top: 14px; padding: 12px; border-radius: 12px; text-align: center; font-weight: 700; display: none; }
+  .msg.ok { display: block; background: #d7f5e3; color: #17663a; }
+  .msg.error { display: block; background: #fbdcdc; color: #8b1e1e; }
+  .msg.aviso { display: block; background: #fff4d6; color: #8a5a00; }
+  .oculto { display: none !important; }
+
+  /* Fotos */
+  .foto-zona { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .foto-prev { width: 120px; height: 120px; border-radius: 18px; background: #eef6ff; border: 2px dashed #b9d4f5; display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--gris); font-size: .8rem; font-weight: 700; text-align: center; }
+  .foto-prev img { width: 100%; height: 100%; object-fit: cover; }
+  .foto-botones { display: flex; flex-direction: column; gap: 8px; }
+  .permiso { display: flex; gap: 8px; align-items: flex-start; font-size: .85rem; font-weight: 600; color: var(--azul2); margin-top: 12px; }
+  .permiso input { margin-top: 3px; }
+  .foto-circ { width: 56px; height: 56px; border-radius: 16px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 10px rgba(10,78,163,.18); }
+  .cab-tarjeta { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+  .cab-tarjeta .texto { flex: 1; min-width: 0; }
+
+  /* Filtros */
+  .filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (min-width: 820px) { .filtros { grid-template-columns: repeat(7, 1fr); } }
+  .filtros label { margin: 0 0 3px; font-size: .75rem; }
+  .filtros select, .filtros input { padding: 9px 10px; font-size: 15px; border-radius: 10px; }
+  .acciones-top { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: flex-end; }
+  .chip-toggle { border: 1.5px solid #ff6fa3; background: #fff; color: #b0144b; font-weight: 700; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-size: .85rem; }
+  .chip-toggle.on { background: linear-gradient(120deg, #ff6fa3, #ffb703); color: #fff; border-color: transparent; }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .kpi { border-radius: 18px; padding: 16px; color: #fff; position: relative; overflow: hidden; min-height: 96px; }
+  .kpi span { font-size: .78rem; opacity: .92; font-weight: 700; letter-spacing: .3px; display: block; }
+  .kpi b { font-size: 2rem; display: block; margin-top: 4px; line-height: 1; }
+  .kpi small { font-size: .75rem; opacity: .9; }
+  .k1 { background: linear-gradient(135deg, #0a4ea3, #3b7bd8); }
+  .k2 { background: linear-gradient(135deg, #7c5cff, #b57bff); }
+  .k3 { background: linear-gradient(135deg, #2fbf8f, #3ec8d6); }
+  .k4 { background: linear-gradient(135deg, #ff6fa3, #ffb703); }
+  .k5 { background: linear-gradient(135deg, #f3722c, #ff9f1c); }
+  .k6 { background: linear-gradient(135deg, #577590, #90be6d); }
+
+  /* Gráficos */
+  .chart-box { position: relative; height: 260px; }
+  .chart-box.alto { height: 320px; }
+
+  /* Lista */
+  .buscar { margin-bottom: 12px; }
+  .contacto { background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--borde); }
+  .contacto b { font-size: 1rem; }
+  .chip { display: inline-block; font-size: .72rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; margin: 6px 4px 0 0; }
+  .chip.tipo { background: #e8e1ff; color: #4b2fd0; }
+  .chip.est { background: #dff4ff; color: #0a4ea3; }
+  .chip.alta { background: #ffe0e8; color: #b0144b; }
+  .chip.media { background: #fff3cf; color: #8a5a00; }
+  .chip.baja { background: #e3f7ee; color: #17663a; }
+  .chip.pend { background: #fff4d6; color: #8a5a00; }
+  .chip.seg { background: #ffe9d9; color: #a23d00; }
+  .dato { font-size: .88rem; color: var(--gris); margin-top: 3px; }
+  .acciones { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .acciones a { text-decoration: none; font-size: .85rem; font-weight: 700; padding: 7px 12px; border-radius: 10px; background: #eef6ff; color: var(--azul); }
+  .vacio { text-align: center; color: var(--gris); padding: 22px; font-weight: 600; }
+  .pie { text-align: center; font-size: .8rem; margin-top: 14px; color: var(--azul2); opacity: .85; }
+  .pill-ok { color: #17663a; }
+  .banner-edit { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #fff4d6; color: #8a5a00; padding: 10px 12px; border-radius: 12px; font-weight: 700; margin-bottom: 8px; }
+  .banner-edit button { white-space: nowrap; }
+  .pie button { background: none; border: 0; color: var(--azul2); text-decoration: underline; cursor: pointer; font-size: .8rem; }
+</style>
+<script>
+  // Configuración de este equipo (la guarda la página de activación).
+  function cfgVenta() { try { return JSON.parse(localStorage.getItem('venta-config')) || null; } catch (e) { return null; } }
+  (function arrancar() {
+    const c = cfgVenta();
+    if (!c) { location.replace('activar.html'); return; }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.title = c.nombre;
+      const metaApple = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (metaApple) metaApple.setAttribute('content', c.nombre);
+      document.querySelectorAll('[data-marca]').forEach((el) => { el.textContent = c.nombre; });
+      document.querySelectorAll('[data-hoja]').forEach((el) => { el.textContent = c.nombreHoja || c.nombre; });
+      document.querySelectorAll('[data-logo]').forEach((el) => { if (c.logo) el.src = c.logo; });
+      // Manifest con el nombre y el logo del comprador.
+      const man = { name: c.nombre, short_name: c.nombre.slice(0, 12), start_url: './', display: 'standalone',
+        background_color: '#9dc3f8', theme_color: '#0a4ea3',
+        icons: c.logo ? [{ src: c.logo, sizes: '512x512', type: 'image/png' }] : [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }] };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(man)], { type: 'application/manifest+json' }));
+      document.querySelector('link[rel="manifest"]').href = url;
+    });
+  })();
+  </script>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Acceso: primera vez -->
+  <!-- Entrar: cada vez que se abre la app -->
+  <div id="panelEntrar" class="card oculto" style="max-width:460px;margin:30px auto;">
+    <h2>🔒 <span data-marca></span></h2>
+    <p class="dato" style="margin:0 0 6px;">Escribe tu clave para entrar. Sin la clave, los datos de este equipo no se pueden ver.</p>
+    <div id="bloqueClave">
+      <label for="claveEntrar">Clave</label>
+      <input id="claveEntrar" type="password" autocomplete="current-password">
+      <button id="btnEntrar" class="principal" type="button">Entrar</button>
+    </div>
+    <button id="btnHuella" class="principal oculto" type="button">👆 Entrar con huella</button>
+    <button id="usarClave" class="sec oculto" type="button" style="width:100%;margin-top:10px;">Usar la clave en vez de la huella</button>
+    <p class="dato" style="margin:14px 0 0;text-align:center;">¿No recuerdas tu clave?
+      <button id="resetLocal" type="button" style="background:none;border:0;color:var(--azul);text-decoration:underline;cursor:pointer;font-weight:700;">Borrar datos de este equipo y crear una clave nueva</button></p>
+    <div id="msgEntrar" class="msg"></div>
+  </div>
+
+  <!-- Crear clave: primera vez en este equipo o después de borrar los datos -->
+  <div id="panelCrear" class="card oculto" style="max-width:460px;margin:30px auto;">
+    <h2>🔐 Crear tu clave</h2>
+    <p class="dato" style="margin:0 0 6px;">Elige una clave de al menos 8 caracteres. Se pedirá cada vez que abras la app. Para este paso necesitas la clave que usabas hasta ahora.</p>
+    <label for="claveActualCrear">Clave actual (la que usabas hasta ahora)</label>
+    <input id="claveActualCrear" type="password" autocomplete="off">
+    <label for="claveNueva">Clave nueva</label>
+    <input id="claveNueva" type="password" autocomplete="new-password">
+    <label for="claveRepetir">Repite la clave nueva</label>
+    <input id="claveRepetir" type="password" autocomplete="new-password">
+    <button id="btnCrear" class="principal" type="button">Guardar clave y entrar</button>
+    <div id="msgCrear" class="msg"></div>
+  </div>
+
+  <div id="app" class="oculto">
+    <div class="hero">
+      <img src="logo.png" alt="" data-logo>
+      <div>
+        <h1 data-marca></h1>
+        <p>Contactos y miembros del proyecto, en un solo lugar</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button id="navContactos" class="activa" type="button">👤 Contactos</button>
+      <button id="navMiembros" type="button">🧑‍🤝‍🧑 Miembros</button>
+    </nav>
+
+    <!-- Cambiar clave (desde la app abierta) -->
+    <div id="panelCambiar" class="card oculto">
+      <h2>🔐 Cambiar clave</h2>
+      <p class="dato" style="margin:0 0 6px;">Al cambiarla, los datos de este equipo se vuelven a cifrar con la clave nueva. Tendrás que escribirla en cada equipo.</p>
+      <label for="cambActual">Clave actual</label>
+      <input id="cambActual" type="password" autocomplete="current-password">
+      <label for="cambNueva">Clave nueva (mínimo 8 caracteres)</label>
+      <input id="cambNueva" type="password" autocomplete="new-password">
+      <label for="cambRepetir">Repite la clave nueva</label>
+      <input id="cambRepetir" type="password" autocomplete="new-password">
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button id="btnCambiar" class="principal" type="button" style="margin-top:0;">Cambiar clave</button>
+        <button id="btnCancelarCambiar" class="sec" type="button">Cancelar</button>
+      </div>
+      <div id="msgCambiar" class="msg"></div>
+    </div>
+
+    <div id="barra" class="barra"><span id="barraTexto"></span><button id="btnSync" class="sec" type="button">↻ Sincronizar</button></div>
+
+    <!-- ===================== CONTACTOS ===================== -->
+    <section id="secContactos">
+      <nav class="subnav">
+        <button id="subCRegistrar" class="activa" type="button">＋ Registrar contacto</button>
+        <button id="subCPanel" type="button">📊 Panel y lista</button>
+      </nav>
+
+      <div id="vCRegistrar" class="card">
+        <h2>Nuevo contacto</h2>
+        <div id="contacto-banner" class="banner-edit oculto"><span id="contacto-bannerTexto"></span><button id="contacto-cancelar" class="sec" type="button">Cancelar</button></div>
+        <form id="contacto-form" autocomplete="off">
+          <div class="seccion">Foto</div>
+          <div class="foto-zona">
+            <div id="contacto-foto-prev" class="foto-prev">Sin foto</div>
+            <div class="foto-botones">
+              <label class="sec" style="margin:0;cursor:pointer;text-align:center;">📷 Tomar o elegir foto
+                <input id="contacto-foto-input" type="file" accept="image/*" capture="user" style="display:none;">
+              </label>
+              <button id="contacto-foto-quitar" class="sec peligro" type="button">Quitar foto</button>
+            </div>
+          </div>
+          <label class="permiso"><input id="contacto-permiso" type="checkbox"> La persona me dio permiso para tomar su foto</label>
+
+          <div class="seccion">Identidad</div>
+          <div class="grid2">
+            <div><label for="contacto-nombre">Nombre completo <span class="req">*</span></label><input id="contacto-nombre" name="nombre" required></div>
+            <div><label for="contacto-tipo">Tipo de contacto</label>
+              <select id="contacto-tipo" name="tipo">
+                <option value="">Selecciona…</option>
+                <option>Profesor o académico</option><option>Emprendedor</option><option>Empresario o inversionista</option>
+                <option>Patrocinador</option><option>Colaborador</option><option>Mentor</option>
+                <option>Medio de comunicación</option><option>Estudiante</option><option>Otro</option>
+              </select></div>
+            <div><label for="contacto-cargo">Cargo</label><input id="contacto-cargo" name="cargo"></div>
+            <div><label for="contacto-empresa">Empresa u organización</label><input id="contacto-empresa" name="empresa"></div>
+            <div><label for="contacto-sector">Sector o área</label><input id="contacto-sector" name="sector" placeholder="Ej: educación, tecnología, salud"></div>
+          </div>
+
+          <div class="seccion">Contacto</div>
+          <div class="grid2">
+            <div><label for="contacto-correo">Correo</label><input id="contacto-correo" name="correo" type="email" inputmode="email"></div>
+            <div><label for="contacto-telefono">Teléfono (con código de país)</label><input id="contacto-telefono" name="telefono" type="tel" inputmode="tel" placeholder="+56 9 1234 5678"></div>
+            <div><label for="contacto-web">Sitio web o LinkedIn</label><input id="contacto-web" name="web" inputmode="url"></div>
+          </div>
+
+          <div class="seccion">Ubicación</div>
+          <div class="grid2">
+            <div><label for="contacto-pais">País</label><input id="contacto-pais" name="pais" list="listaPaises" placeholder="Ej: Chile"></div>
+            <div><label for="contacto-ciudad">Ciudad</label><input id="contacto-ciudad" name="ciudad"></div>
+          </div>
+          <datalist id="listaPaises">
+            <option>Chile</option><option>Argentina</option><option>Perú</option><option>Colombia</option><option>México</option>
+            <option>Ecuador</option><option>Bolivia</option><option>Uruguay</option><option>Paraguay</option><option>Venezuela</option>
+            <option>Brasil</option><option>España</option><option>Estados Unidos</option><option>Canadá</option><option>Francia</option>
+            <option>Alemania</option><option>Italia</option><option>Reino Unido</option><option>China</option><option>Otro</option>
+          </datalist>
+
+          <div class="seccion">Datos adicionales</div>
+          <div class="grid2">
+            <div><label for="contacto-rut">RUT (opcional)</label><input id="contacto-rut" name="rut" placeholder="12.345.678-5"></div>
+            <div><label for="contacto-interes">Interés principal</label>
+              <select id="contacto-interes" name="interes">
+                <option value="">Selecciona…</option><option>Emprendimiento</option><option>Tecnología</option>
+                <option>Desarrollo personal</option><option>Formación para grupos</option>
+                <option>Donación o patrocinio</option><option>Otro</option>
+              </select></div>
+          </div>
+          <label for="contacto-proxima">Próxima acción (qué hacer y para cuándo)</label>
+          <input id="contacto-proxima" name="proxima" placeholder="Ej: llamar el 5 de diciembre">
+
+          <div class="seccion">Relación</div>
+          <div class="grid3">
+            <div><label for="contacto-estado">Estado</label>
+              <select id="contacto-estado" name="estado">
+                <option>Por contactar</option><option>Contactado</option><option>En conversación</option>
+                <option>Colaborador activo</option><option>Descartado</option>
+              </select></div>
+            <div><label for="contacto-prioridad">Prioridad</label>
+              <select id="contacto-prioridad" name="prioridad"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+            <div><label for="contacto-ultimo">Último contacto</label><input id="contacto-ultimo" name="ultimo" type="date"></div>
+            <div><label for="contacto-como">Cómo nos conocimos</label><input id="contacto-como" name="como"></div>
+          </div>
+          <label for="contacto-notas">Notas</label>
+          <textarea id="contacto-notas" name="notas"></textarea>
+
+          <button id="contacto-btn" class="principal" type="submit">Guardar contacto</button>
+          <div id="contacto-msg" class="msg"></div>
+        </form>
+      </div>
+
+      <div id="vCPanel" class="oculto">
+        <div class="card">
+          <h2>Filtros <small id="sync"></small></h2>
+          <div class="filtros">
+            <div><label for="c-tipo">Tipo</label><select id="c-tipo"></select></div>
+            <div><label for="c-pais">País</label><select id="c-pais"></select></div>
+            <div><label for="c-ciudad">Ciudad</label><select id="c-ciudad"></select></div>
+            <div><label for="c-estado">Estado</label><select id="c-estado"></select></div>
+            <div><label for="c-prio">Prioridad</label><select id="c-prio"></select></div>
+            <div><label for="c-orden">Ordenar</label>
+              <select id="c-orden">
+                <option value="recientes">Más recientes</option>
+                <option value="nombre">Nombre A-Z</option>
+                <option value="prioridad">Prioridad</option>
+                <option value="ultimo">Último contacto (más antiguo)</option>
+              </select></div>
+            <div><label for="c-buscar">Buscar</label><input id="c-buscar" type="search" placeholder="Nombre, cargo…"></div>
+          </div>
+          <div class="acciones-top" style="justify-content:space-between;">
+            <button id="c-seguim" class="chip-toggle" type="button">⏰ Solo seguimientos pendientes</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button id="c-limpiar" class="sec" type="button">Limpiar filtros</button>
+              <button id="c-importar" class="sec" type="button">⬆ Importar CSV</button>
+              <input id="c-csv" type="file" accept=".csv,text/csv" style="display:none;">
+              <button id="c-exportar" class="sec" type="button">⬇ Exportar CSV</button>
+              <button id="c-actualizar" class="sec" type="button">↻ Actualizar</button>
+            </div>
+          </div>
+          <div id="c-msg" class="msg"></div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi k1"><span>TOTAL GLOBAL</span><b id="kGlobal">0</b><small>todos los contactos</small></div>
+          <div class="kpi k2"><span id="kTipoLabel">TOTAL POR TIPO</span><b id="kTipo">0</b><small id="kTipoSub">—</small></div>
+          <div class="kpi k3"><span>SEGÚN FILTROS</span><b id="kFiltro">0</b><small id="kFiltroSub">—</small></div>
+          <div class="kpi k4"><span>PRIORIDAD ALTA</span><b id="kAlta">0</b><small>en la selección</small></div>
+          <div class="kpi k5"><span>SEGUIMIENTOS</span><b id="kSeg">0</b><small>pendientes (global)</small></div>
+          <div class="kpi k6"><span>COLABORADORES</span><b id="kColab">0</b><small>activos en la selección</small></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card"><h2>Por tipo de contacto</h2><div class="chart-box"><canvas id="cTipo"></canvas></div></div>
+          <div class="card"><h2>Estado de la relación</h2><div class="chart-box"><canvas id="cEstado"></canvas></div></div>
+          <div class="card"><h2>Países <small>top 10</small></h2><div class="chart-box alto"><canvas id="cPais"></canvas></div></div>
+          <div class="card"><h2>Ciudades <small>top 10</small></h2><div class="chart-box alto"><canvas id="cCiudad"></canvas></div></div>
+          <div class="card"><h2>Cargos <small>top 10</small></h2><div class="chart-box alto"><canvas id="cCargo"></canvas></div></div>
+          <div class="card"><h2>Sectores <small>top 10</small></h2><div class="chart-box alto"><canvas id="cSector"></canvas></div></div>
+          <div class="card"><h2>Prioridad</h2><div class="chart-box"><canvas id="cPrioridad"></canvas></div></div>
+          <div class="card"><h2>Registros por mes</h2><div class="chart-box"><canvas id="cMes"></canvas></div></div>
+        </div>
+
+        <div class="card">
+          <h2>Lista de contactos <small id="c-conteo"></small></h2>
+          <div id="contacto-lista"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MIEMBROS ===================== -->
+    <section id="secMiembros" class="oculto">
+      <nav class="subnav">
+        <button id="subMRegistrar" class="activa" type="button">＋ Registrar miembro</button>
+        <button id="subMLista" type="button">📋 Lista de miembros</button>
+      </nav>
+
+      <div id="vMRegistrar" class="card">
+        <h2>Nuevo miembro del proyecto</h2>
+        <div id="miembro-banner" class="banner-edit oculto"><span id="miembro-bannerTexto"></span><button id="miembro-cancelar" class="sec" type="button">Cancelar</button></div>
+        <form id="miembro-form" autocomplete="off">
+          <div class="seccion">Foto</div>
+          <div class="foto-zona">
+            <div id="miembro-foto-prev" class="foto-prev">Sin foto</div>
+            <div class="foto-botones">
+              <label class="sec" style="margin:0;cursor:pointer;text-align:center;">📷 Tomar o elegir foto
+                <input id="miembro-foto-input" type="file" accept="image/*" capture="user" style="display:none;">
+              </label>
+              <button id="miembro-foto-quitar" class="sec peligro" type="button">Quitar foto</button>
+            </div>
+          </div>
+          <label class="permiso"><input id="miembro-permiso" type="checkbox"> La persona me dio permiso para tomar su foto</label>
+
+          <div class="seccion">Identidad</div>
+          <div class="grid2">
+            <div><label for="miembro-nombre">Nombre completo <span class="req">*</span></label><input id="miembro-nombre" name="nombre" required></div>
+            <div><label for="miembro-rol">Rol en el proyecto</label>
+              <select id="miembro-rol" name="rol">
+                <option value="">Selecciona…</option>
+                <option>Coordinador</option><option>Investigador</option><option>Voluntario</option>
+                <option>Asesor</option><option>Colaborador externo</option><option>Otro</option>
+              </select></div>
+            <div><label for="miembro-cargo">Cargo</label><input id="miembro-cargo" name="cargo"></div>
+            <div><label for="miembro-institucion">Institución u organización</label><input id="miembro-institucion" name="institucion"></div>
+            <div><label for="miembro-area">Área</label><input id="miembro-area" name="area" placeholder="Ej: comunicaciones, finanzas"></div>
+          </div>
+
+          <div class="seccion">Contacto</div>
+          <div class="grid2">
+            <div><label for="miembro-correo">Correo</label><input id="miembro-correo" name="correo" type="email" inputmode="email"></div>
+            <div><label for="miembro-telefono">Teléfono (con código de país)</label><input id="miembro-telefono" name="telefono" type="tel" inputmode="tel" placeholder="+56 9 1234 5678"></div>
+          </div>
+
+          <div class="seccion">Identificación (opcional)</div>
+          <div class="grid2">
+            <div><label for="miembro-rut">RUT (opcional)</label><input id="miembro-rut" name="rut" placeholder="12.345.678-5"></div>
+          </div>
+
+          <div class="seccion">Ubicación y pertenencia</div>
+          <div class="grid2">
+            <div><label for="miembro-pais">País</label><input id="miembro-pais" name="pais" list="listaPaises" placeholder="Ej: Chile"></div>
+            <div><label for="miembro-ciudad">Ciudad</label><input id="miembro-ciudad" name="ciudad"></div>
+          </div>
+          <div class="grid3">
+            <div><label for="miembro-estado">Estado</label>
+              <select id="miembro-estado" name="estado"><option>Activo</option><option>Por confirmar</option><option>Inactivo</option></select></div>
+            <div><label for="miembro-ingreso">Fecha de ingreso</label><input id="miembro-ingreso" name="ingreso" type="date"></div>
+          </div>
+          <label for="miembro-notas">Notas</label>
+          <textarea id="miembro-notas" name="notas"></textarea>
+
+          <button id="miembro-btn" class="principal" type="submit">Guardar miembro</button>
+          <div id="miembro-msg" class="msg"></div>
+        </form>
+      </div>
+
+      <div id="vMLista" class="oculto">
+        <div class="card">
+          <h2>Filtros</h2>
+          <div class="filtros" style="grid-template-columns:1fr 1fr 2fr;">
+            <div><label for="m-estado">Estado</label><select id="m-estado"></select></div>
+            <div><label for="m-rol">Rol</label><select id="m-rol"></select></div>
+            <div><label for="m-buscar">Buscar</label><input id="m-buscar" type="search" placeholder="Nombre, cargo, institución…"></div>
+          </div>
+          <div class="acciones-top">
+            <button id="m-limpiar" class="sec" type="button">Limpiar filtros</button>
+            <button id="m-exportar" class="sec" type="button">⬇ Exportar CSV</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi k1"><span>TOTAL MIEMBROS</span><b id="mTotal">0</b><small>registrados</small></div>
+          <div class="kpi k3"><span>ACTIVOS</span><b id="mActivo">0</b><small>en el proyecto</small></div>
+          <div class="kpi k4"><span>POR CONFIRMAR</span><b id="mConfirmar">0</b><small>pendientes</small></div>
+          <div class="kpi k5"><span>INACTIVOS</span><b id="mInactivo">0</b><small>&nbsp;</small></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card"><h2>Por rol</h2><div class="chart-box"><canvas id="cMRol"></canvas></div></div>
+          <div class="card"><h2>Por estado</h2><div class="chart-box"><canvas id="cMEstado"></canvas></div></div>
+        </div>
+
+        <div class="card">
+          <h2>Lista de miembros <small id="m-conteo"></small></h2>
+          <div id="miembro-lista"></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="pie">Datos sincronizados con la hoja "<span data-hoja></span>" de tu Drive · versión <span id="versionApp">v1</span><br>
+      <button id="actualizarApp" class="sec" type="button" style="margin-top:8px;">🔄 Actualizar aplicación</button>
+      <button id="activarHuella" class="sec" type="button" style="margin-top:8px;">👆 Activar huella en este equipo</button>
+      <button id="cambiarClave" type="button">Cambiar clave</button></p>
+  </div>
+</div>
+
+<script>
+  const API_URL = (cfgVenta() || {}).apiUrl || '';
+  const BLOQUE_KEY = 'futurible-bloque-v4';   // datos cifrados con la clave
+  const SAL_KEY = 'futurible-sal-v4';         // sal para derivar la llave
+  const INTENTOS_KEY = 'futurible-intentos-v4';
+  const DATOS_KEY = 'futurible-datos-v3';     // solo para migrar versiones anteriores
+  const COLA_KEY = 'futurible-cola-v1';       // solo para migrar versiones anteriores
+  const LEGADO_KEYS = ['futurible-clave', 'futurible-datos-v2', 'futurible-datos-v3', 'futurible-cola-v1'];
+  let claveActiva = '';     // solo vive en memoria mientras la app está abierta
+  let llaveCifrado = null;  // llave AES derivada de la clave
+  let ocultoDesde = 0;
+  const HUELLA_KEY = 'futurible-huella-v5';  // clave guardada, cifrada con la huella del equipo
+  let modoClave = false;          // true si el usuario eligió escribir la clave en vez de la huella
+  let autoHuellaIntentada = false; // para pedir la huella una vez al bloquear
+
+  // ---------- Huella (WebAuthn + PRF) ----------
+  function huellaDisponible() { return !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext); }
+
+  // Pide la huella y devuelve un secreto de 32 bytes ligado a este equipo.
+  async function secretoConHuella(idBytes, salPrf) {
+    const cred = await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials: [{ type: 'public-key', id: idBytes }],
+        userVerification: 'required',
+        timeout: 60000,
+        extensions: { prf: { eval: { first: salPrf } } }
+      }
+    });
+    const res = cred.getClientExtensionResults();
+    return res.prf && res.prf.results && res.prf.results.first ? new Uint8Array(res.prf.results.first) : null;
+  }
+
+  // Guarda la clave cifrada con la huella. Necesita estar dentro de la app (clave en memoria).
+  async function activarHuella() {
+    const msg = $('c-msg');
+    if (!huellaDisponible()) { mostrar(msg, 'Este navegador o equipo no permite usar la huella con esta app.', 'error'); return; }
+    if (!llaveCifrado || !claveActiva) { mostrar(msg, 'Entra con tu clave antes de activar la huella.', 'error'); return; }
+    if (!confirm('Se usará la huella de este equipo para entrar. Te pedirá la huella dos veces para activarla. ¿Continuar?')) return;
+    try {
+      const cred = await navigator.credentials.create({
+        publicKey: {
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
+          rp: { name: (cfgVenta() || {}).nombre || 'App' },
+          user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'futurible', displayName: (cfgVenta() || {}).nombre || 'App' },
+          pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+          authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
+          timeout: 60000,
+          extensions: { prf: {} }
+        }
+      });
+      const idBytes = new Uint8Array(cred.rawId);
+      const salPrf = crypto.getRandomValues(new Uint8Array(32));
+      const secreto = await secretoConHuella(idBytes, salPrf);
+      if (!secreto) { mostrar(msg, 'Tu equipo no permite usar la huella con esta app. Sigue usando la clave.', 'error'); return; }
+      const llave = await crypto.subtle.importKey('raw', secreto, 'AES-GCM', false, ['encrypt', 'decrypt']);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const bytes = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, llave, enc.encode(claveActiva)));
+      localStorage.setItem(HUELLA_KEY, JSON.stringify({ id: bytesA64(idBytes), prfSal: bytesA64(salPrf), iv: bytesA64(iv), data: bytesA64(bytes) }));
+      mostrar(msg, 'Huella activada en este equipo. Al abrir la app podrás entrar con ella.', 'ok');
+      mostrarPantalla();
+    } catch (e) {
+      mostrar(msg, 'No se activó la huella (' + (e.name === 'NotAllowedError' ? 'cancelada' : e.message) + ').', 'error');
+    }
+  }
+
+  // Entra usando la huella: la clave guardada se abre solo con el secreto de la huella.
+  async function entrarConHuella() {
+    const msg = $('msgEntrar');
+    const h = JSON.parse(localStorage.getItem(HUELLA_KEY) || 'null');
+    if (!h) return;
+    try {
+      const secreto = await secretoConHuella(a64Bytes(h.id), a64Bytes(h.prfSal));
+      if (!secreto) throw new Error('sin secreto');
+      const llave = await crypto.subtle.importKey('raw', secreto, 'AES-GCM', false, ['encrypt', 'decrypt']);
+      const clave = dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: a64Bytes(h.iv) }, llave, a64Bytes(h.data)));
+      await entrarCon(clave);
+    } catch (e) {
+      if (e.name === 'NotAllowedError') mostrar(msg, 'Huella cancelada. Puedes usar tu clave.', 'aviso');
+      else mostrar(msg, 'No se pudo con la huella. Pulsa "Usar la clave en vez de la huella".', 'error');
+    }
+  }
+
+  // Abre la app con una clave ya verificada (núcleo común de clave y huella).
+  async function entrarCon(clave) {
+    const bloque = leerBloque();
+    const sal = leerSal();
+    if (!bloque || !sal) throw new Error('sin datos');
+    const llave = await derivarLlave(clave, sal);
+    const contenido = await descifrarDatos(llave, bloque);
+    claveActiva = clave;
+    llaveCifrado = llave;
+    datos = Object.assign({ contacto: [], miembro: [] }, contenido.datos || {});
+    cola = contenido.cola || [];
+    localStorage.removeItem(INTENTOS_KEY);
+    $('claveEntrar').value = '';
+    mostrarPantalla();
+    abrirApp();
+  }
+  const PALETA = ['#0a4ea3', '#3ec8d6', '#7c5cff', '#ff6fa3', '#ffb703', '#2fbf8f', '#f3722c', '#577590', '#90be6d', '#b5179e'];
+  const ESTADOS_CONTACTO = ['Por contactar', 'Contactado', 'En conversación', 'Colaborador activo', 'Descartado'];
+  const PRIORIDAD_ORDEN = { Alta: 0, Media: 1, Baja: 2 };
+
+  const CONF = {
+    contacto: {
+      nombre: 'Contacto',
+      campos: ['nombre', 'tipo', 'cargo', 'empresa', 'sector', 'correo', 'telefono', 'pais', 'ciudad', 'web', 'estado', 'prioridad', 'ultimo', 'como', 'notas', 'rut', 'interes', 'proxima'],
+      defectos: { estado: 'Por contactar', prioridad: 'Media' }
+    },
+    miembro: {
+      nombre: 'Miembro',
+      campos: ['nombre', 'rol', 'cargo', 'institucion', 'area', 'correo', 'telefono', 'pais', 'ciudad', 'estado', 'ingreso', 'notas', 'rut'],
+      defectos: { estado: 'Activo' }
+    }
+  };
+  const ALIAS_CSV = {
+    'rut': 'rut', 'interes': 'interes', 'interes principal': 'interes', 'proxima': 'proxima', 'proxima accion': 'proxima',
+    'nombre': 'nombre', 'nombre completo': 'nombre', 'tipo': 'tipo', 'tipo de contacto': 'tipo',
+    'cargo': 'cargo', 'empresa': 'empresa', 'empresa u organizacion': 'empresa', 'sector': 'sector',
+    'sector o area': 'sector', 'correo': 'correo', 'email': 'correo', 'telefono': 'telefono', 'pais': 'pais',
+    'ciudad': 'ciudad', 'web': 'web', 'sitio web o linkedin': 'web', 'estado': 'estado', 'prioridad': 'prioridad',
+    'ultimo': 'ultimo', 'ultimo contacto': 'ultimo', 'como': 'como', 'como nos conocimos': 'como', 'notas': 'notas'
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const $e = (entidad, sufijo) => $(entidad + '-' + sufijo);
+  let datos = { contacto: [], miembro: [] };
+  let cola = [];
+  let sincronizando = false;
+  const editando = { contacto: null, miembro: null };
+  const foto = { contacto: '', miembro: '' };
+  const fotoNueva = { contacto: false, miembro: false };
+  const graficos = {};
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function mostrar(el, texto, tipo) { el.textContent = texto; el.className = 'msg ' + tipo; }
+  function limpio(v) { return String(v == null ? '' : v).trim(); }
+  // Búsqueda: ignora tildes, mayúsculas, puntos y guiones; cada palabra debe aparecer en algún campo.
+  function normalizar(v) {
+    return String(v == null ? '' : v).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.\-]/g, '').toLowerCase();
+  }
+  function coincide(q, campos) {
+    if (!q) return true;
+    const texto = normalizar(campos.join(' '));
+    return normalizar(q).split(/\s+/).filter(Boolean).every((p) => texto.indexOf(p) !== -1);
+  }
+  // RUT chileno: validación con dígito verificador (módulo 11).
+  function rutLimpio(v) { return String(v == null ? '' : v).replace(/[.\s-]/g, '').toUpperCase(); }
+  function rutValido(v) {
+    const r = rutLimpio(v);
+    if (!/^\d{7,8}[0-9K]$/.test(r)) return false;
+    const cuerpo = r.slice(0, -1);
+    let suma = 0, factor = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) { suma += Number(cuerpo[i]) * factor; factor = factor === 7 ? 2 : factor + 1; }
+    const resto = 11 - (suma % 11);
+    const esperado = resto === 11 ? '0' : resto === 10 ? 'K' : String(resto);
+    return r.slice(-1) === esperado;
+  }
+  function rutFormato(v) { const r = rutLimpio(v); return r.slice(0, -1) + '-' + r.slice(-1); }
+  function uid() { return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); }
+  function diasDesde(fecha) { return fecha ? (Date.now() - new Date(fecha + 'T00:00:00').getTime()) / 86400000 : Infinity; }
+  function esSeguimiento(c) {
+    return c.estado !== 'Descartado' && c.estado !== 'Colaborador activo' && diasDesde(c.ultimo) > 30;
+  }
+
+  // ---------- Comunicación ----------
+  async function enviar(cuerpo, claveUsar) {
+    let r;
+    try {
+      r = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ clave: claveUsar || claveActiva }, cuerpo))
+      });
+    } catch (e) { e.esRed = true; throw e; }
+    try { return await r.json(); } catch (e) { throw new Error('La hoja respondió algo inesperado. Revisa la publicación de Apps Script.'); }
+  }
+
+  // Si no hay conexión, la acción se guarda en la cola y se envía después.
+  async function operar(entidad, accion, payload, sinCola) {
+    const item = { entidad: entidad, accion: accion, payload: payload };
+    if (!navigator.onLine) {
+      if (sinCola) return { ok: false, error: 'Sin conexión: esta acción necesita internet.' };
+      encolar(item);
+      return { ok: true, offline: true };
+    }
+    try {
+      return await enviar(Object.assign({ entidad: entidad, accion: accion }, payload));
+    } catch (e) {
+      if (!e.esRed) return { ok: false, error: e.message };
+      if (sinCola) return { ok: false, error: 'Sin conexión: esta acción necesita internet.' };
+      encolar(item);
+      return { ok: true, offline: true };
+    }
+  }
+
+  function encolar(item) {
+    if (item.accion === 'guardar' || item.accion === 'editar') item.payload.forzar = true;
+    cola.push(item);
+    guardarLocal();
+    pintarBarra();
+  }
+
+  async function sincronizar() {
+    if (sincronizando || !cola.length) return;
+    sincronizando = true; pintarBarra();
+    while (cola.length) {
+      const item = cola[0];
+      let res;
+      try {
+        res = await enviar(Object.assign({ entidad: item.entidad, accion: item.accion }, item.payload));
+      } catch (e) { break; }
+      if (res.error === 'clave') break;
+      if (res.error === 'duplicado') mostrarAviso('Un cambio pendiente no se guardó porque ya existe un registro igual: ' + (res.mensaje || ''));
+      else if (!res.ok && res.error) mostrarAviso('Un cambio pendiente no se pudo enviar: ' + res.error);
+      cola.shift();
+      guardarLocal();
+    }
+    sincronizando = false;
+    pintarBarra();
+  }
+
+  function mostrarAviso(texto) { mostrar($('c-msg'), texto, 'aviso'); }
+
+  // Combina lo que dice la hoja con los cambios que aún están en la cola.
+  function fusionar(entidad, servidor) {
+    const pend = cola.filter((i) => i.entidad === entidad);
+    const borrados = new Set(pend.filter((i) => i.accion === 'eliminar').map((i) => i.payload.id));
+    const editados = {};
+    pend.filter((i) => i.accion === 'editar').forEach((i) => { editados[i.payload.id] = i.payload.datos; });
+    let lista = servidor.filter((r) => !borrados.has(r.id)).map((r) =>
+      editados[r.id] ? Object.assign({}, r, editados[r.id], { id: r.id, fecha: r.fecha, pendiente: true }) : r);
+    const ids = new Set(lista.map((r) => r.id));
+    pend.filter((i) => i.accion === 'guardar').forEach((i) => {
+      if (ids.has(i.payload.id) || borrados.has(i.payload.id)) return;
+      const base = Object.assign({ id: i.payload.id, fecha: i.payload.creado, pendiente: true }, i.payload.datos, editados[i.payload.id] || {});
+      lista.push(base);
+    });
+    return lista;
+  }
+
+  async function cargarTodo() {
+    if (!navigator.onLine) { pintarTodo(); pintarBarra(); return; }
+    await sincronizar();
+    let fallo = null;
+    for (const entidad of ['contacto', 'miembro']) {
+      try {
+        const res = await enviar({ entidad: entidad, accion: 'listar' });
+        if (res.ok) datos[entidad] = fusionar(entidad, res.registros || []);
+        else if (res.error === 'clave') { localStorage.removeItem(HUELLA_KEY); bloquear('Tu clave ya no coincide con la del servidor. Vuelve a escribirla.'); return; }
+        else fallo = res.error;
+      } catch (e) { fallo = 'Sin conexión: mostrando los últimos datos guardados.'; }
+    }
+    guardarLocal();
+    if (fallo) mostrarAviso(fallo);
+    $('sync').innerHTML = fallo ? '<span>● sin conexión</span>' : '<span class="pill-ok">● sincronizado</span> · ' + new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    prepararFiltros();
+    pintarTodo();
+    pintarMiembros();
+    pintarBarra();
+  }
+
+  // ---------- Cifrado local (AES-GCM con llave derivada de la clave) ----------
+  const enc = new TextEncoder();
+  const dec = new TextDecoder();
+  function bytesA64(bytes) { let s = ''; bytes.forEach((b) => { s += String.fromCharCode(b); }); return btoa(s); }
+  function a64Bytes(texto) { return Uint8Array.from(atob(texto), (c) => c.charCodeAt(0)); }
+
+  async function derivarLlave(clave, sal) {
+    const base = await crypto.subtle.importKey('raw', enc.encode(clave), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: sal, iterations: 200000, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+
+  async function cifrarDatos(llave, objeto) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const bytes = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, llave, enc.encode(JSON.stringify(objeto))));
+    return { iv: bytesA64(iv), data: bytesA64(bytes) };
+  }
+
+  async function descifrarDatos(llave, bloque) {
+    const bytes = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: a64Bytes(bloque.iv) }, llave, a64Bytes(bloque.data));
+    return JSON.parse(dec.decode(bytes));
+  }
+
+  let guardando = Promise.resolve();
+  // Guarda datos y cola cifrados. Las escrituras se hacen en orden.
+  function guardarLocal() {
+    guardando = guardando.then(async () => {
+      if (!llaveCifrado) return;
+      const bloque = await cifrarDatos(llaveCifrado, { datos: datos, cola: cola });
+      localStorage.setItem(BLOQUE_KEY, JSON.stringify(bloque));
+    }).catch(() => {});
+  }
+
+  function leerSal() { const s = localStorage.getItem(SAL_KEY); return s ? a64Bytes(s) : null; }
+  function leerBloque() { try { return JSON.parse(localStorage.getItem(BLOQUE_KEY) || 'null'); } catch (e) { return null; } }
+
+  // Nueva sal y nueva llave: se usa al crear o cambiar la clave.
+  async function establecerClave(clave) {
+    const sal = crypto.getRandomValues(new Uint8Array(16));
+    localStorage.setItem(SAL_KEY, bytesA64(sal));
+    claveActiva = clave;
+    llaveCifrado = await derivarLlave(clave, sal);
+    await guardando;
+    guardando = Promise.resolve();
+    const bloque = await cifrarDatos(llaveCifrado, { datos: datos, cola: cola });
+    localStorage.setItem(BLOQUE_KEY, JSON.stringify(bloque));
+  }
+
+  // Bloquea la app: borra de la memoria la clave y los datos. Lo guardado queda cifrado.
+  function bloquear(mensaje) {
+    claveActiva = ''; llaveCifrado = null;
+    modoClave = false; autoHuellaIntentada = false;
+    datos = { contacto: [], miembro: [] }; cola = [];
+    $('app').classList.add('oculto');
+    $('panelCambiar').classList.add('oculto');
+    mostrarPantalla();
+    if (mensaje) mostrar($('msgEntrar'), mensaje, 'error');
+  }
+
+  function pintarBarra() {
+    const b = $('barra');
+    const n = cola.length;
+    b.className = 'barra' + (!navigator.onLine ? ' sinconexion' : n ? ' pendiente' : '');
+    $('barraTexto').textContent = !navigator.onLine
+      ? '● Sin conexión · ' + (n ? n + ' cambio(s) guardados en el celular' : 'los cambios se enviarán al volver la conexión')
+      : n ? '⏳ ' + n + ' cambio(s) por enviar a Drive' + (sincronizando ? ' (enviando…)' : '') : '✓ Todo está en Drive';
+    $('btnSync').style.display = n || !navigator.onLine ? '' : 'none';
+  }
+
+  // ---------- Navegación y acceso ----------
+  function mostrarPantalla() {
+    if (llaveCifrado) {
+      $('panelEntrar').classList.add('oculto');
+      $('panelCrear').classList.add('oculto');
+      $('app').classList.remove('oculto');
+      return;
+    }
+    $('app').classList.add('oculto');
+    const hayDatos = !!leerBloque();
+    $('panelEntrar').classList.toggle('oculto', !hayDatos);
+    $('panelCrear').classList.toggle('oculto', hayDatos);
+    // Si la huella está activada en este equipo, la entrada es solo con huella (la clave queda como respaldo).
+    const soloHuella = hayDatos && huellaDisponible() && !!localStorage.getItem(HUELLA_KEY);
+    $('btnHuella').classList.toggle('oculto', !soloHuella);
+    $('bloqueClave').classList.toggle('oculto', soloHuella && !modoClave);
+    $('usarClave').classList.toggle('oculto', !soloHuella || modoClave);
+    $('activarHuella').classList.toggle('oculto', !huellaDisponible());
+    if (soloHuella && !modoClave && !autoHuellaIntentada) {
+      autoHuellaIntentada = true;
+      setTimeout(entrarConHuella, 400);
+    } else if (hayDatos && !soloHuella) {
+      setTimeout(() => $('claveEntrar').focus(), 50);
+    }
+  }
+
+  // Al abrir la app: primero entra con la clave; luego sincroniza.
+  function abrirApp() {
+    $('app').classList.remove('oculto');
+    prepararFiltros();
+    pintarTodo();
+    pintarMiembros();
+    pintarBarra();
+    cargarTodo();
+  }
+
+  // Si la app pasa más de 15 minutos en segundo plano, vuelve a pedir la clave o la huella.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { ocultoDesde = Date.now(); return; }
+    if (llaveCifrado && ocultoDesde && Date.now() - ocultoDesde > 900000) {
+      bloquear('Por seguridad, vuelve a escribir tu clave.');
+    }
+  });
+
+  function mostrarSeccion(seccion) {
+    const c = seccion === 'contactos';
+    $('navContactos').classList.toggle('activa', c);
+    $('navMiembros').classList.toggle('activa', !c);
+    $('secContactos').classList.toggle('oculto', !c);
+    $('secMiembros').classList.toggle('oculto', c);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function subVista(prefijo, vista) {
+    const reg = vista === 'registrar';
+    if (prefijo === 'c') {
+      $('subCRegistrar').classList.toggle('activa', reg); $('subCPanel').classList.toggle('activa', !reg);
+      $('vCRegistrar').classList.toggle('oculto', !reg); $('vCPanel').classList.toggle('oculto', reg);
+      if (!reg) cargarTodo();
+    } else {
+      $('subMRegistrar').classList.toggle('activa', reg); $('subMLista').classList.toggle('activa', !reg);
+      $('vMRegistrar').classList.toggle('oculto', !reg); $('vMLista').classList.toggle('oculto', reg);
+      if (!reg) cargarTodo();
+    }
+  }
+
+  // Entrar con la clave (cada vez que se abre la app). Tras 5 errores, espera 30 segundos.
+  async function intentarEntrar() {
+    const msg = $('msgEntrar');
+    const clave = $('claveEntrar').value;
+    if (!clave) { mostrar(msg, 'Escribe tu clave.', 'error'); return; }
+    const intentos = JSON.parse(localStorage.getItem(INTENTOS_KEY) || '{"n":0,"hasta":0}');
+    if (intentos.hasta > Date.now()) {
+      mostrar(msg, 'Demasiados intentos. Espera ' + Math.ceil((intentos.hasta - Date.now()) / 1000) + ' segundos.', 'error');
+      return;
+    }
+    const bloque = leerBloque();
+    const sal = leerSal();
+    if (!bloque || !sal) { mostrarPantalla(); return; }
+    $('btnEntrar').disabled = true;
+    try {
+      const llave = await derivarLlave(clave, sal);
+      const contenido = await descifrarDatos(llave, bloque);
+      claveActiva = clave;
+      llaveCifrado = llave;
+      datos = Object.assign({ contacto: [], miembro: [] }, contenido.datos || {});
+      cola = contenido.cola || [];
+      localStorage.removeItem(INTENTOS_KEY);
+      $('claveEntrar').value = '';
+      msg.className = 'msg';
+      mostrarPantalla();
+      abrirApp();
+    } catch (e) {
+      const n = intentos.n + 1;
+      localStorage.setItem(INTENTOS_KEY, JSON.stringify({ n: n, hasta: n >= 5 ? Date.now() + 30000 : 0 }));
+      mostrar(msg, 'Clave incorrecta.' + (n >= 5 ? ' Espera 30 segundos antes de intentarlo de nuevo.' : ''), 'error');
+      $('claveEntrar').select();
+    } finally {
+      $('btnEntrar').disabled = false;
+    }
+  }
+  $('btnEntrar').addEventListener('click', intentarEntrar);
+  $('claveEntrar').addEventListener('keydown', (e) => { if (e.key === 'Enter') intentarEntrar(); });
+
+  // Datos de versiones anteriores (sin cifrar), para migrarlos al crear la clave.
+  function leerLegado() {
+    let d = { contacto: [], miembro: [] };
+    ['futurible-datos-v2', DATOS_KEY].forEach((k) => {
+      try {
+        const x = JSON.parse(localStorage.getItem(k) || 'null');
+        if (Array.isArray(x)) d.contacto = x;
+        else if (x && typeof x === 'object') d = Object.assign(d, x);
+      } catch (e) {}
+    });
+    let c = [];
+    try { c = JSON.parse(localStorage.getItem(COLA_KEY) || '[]'); } catch (e) {}
+    return { datos: d, cola: c };
+  }
+
+  // Cambia la clave en el servidor (con la actual) y vuelve a cifrar los datos de este equipo.
+  async function cambiarClaveCompleta(actual, nueva, repetir, msg, btn, primeraVez) {
+    if (nueva.length < 8) { mostrar(msg, 'La clave nueva debe tener al menos 8 caracteres.', 'error'); return false; }
+    if (nueva !== repetir) { mostrar(msg, 'Las claves nuevas no coinciden.', 'error'); return false; }
+    if (nueva === actual) { mostrar(msg, 'La clave nueva debe ser distinta de la actual.', 'error'); return false; }
+    if (!navigator.onLine) { mostrar(msg, 'Necesitas internet para cambiar la clave.', 'error'); return false; }
+    btn.disabled = true;
+    try {
+      const chequeo = await enviar({ entidad: 'contacto', accion: 'listar' }, actual);
+      if (chequeo.error === 'clave') { mostrar(msg, 'La clave actual no es correcta.', 'error'); return false; }
+      if (!chequeo.ok) { mostrar(msg, 'No se pudo verificar: ' + chequeo.error, 'error'); return false; }
+      const r = await enviar({ accion: 'cambiarClave', nueva: nueva }, actual);
+      if (!r.ok) { mostrar(msg, 'No se cambió la clave: ' + (r.error || 'error desconocido'), 'error'); return false; }
+      if (primeraVez) {
+        const legado = leerLegado();
+        datos = legado.datos;
+        cola = legado.cola;
+      }
+      await establecerClave(nueva);
+      localStorage.removeItem(HUELLA_KEY);  // la huella guardada era de la clave anterior
+      if (primeraVez) LEGADO_KEYS.forEach((k) => localStorage.removeItem(k));
+      return true;
+    } catch (e) {
+      mostrar(msg, 'No se pudo conectar. Intenta de nuevo con internet.', 'error');
+      return false;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  $('btnCrear').addEventListener('click', async () => {
+    const ok = await cambiarClaveCompleta($('claveActualCrear').value, $('claveNueva').value, $('claveRepetir').value, $('msgCrear'), $('btnCrear'), true);
+    if (!ok) return;
+    ['claveActualCrear', 'claveNueva', 'claveRepetir'].forEach((id) => { $(id).value = ''; });
+    mostrarPantalla();
+    abrirApp();
+  });
+
+  $('btnCancelarCambiar').addEventListener('click', () => {
+    ['cambActual', 'cambNueva', 'cambRepetir'].forEach((id) => { $(id).value = ''; });
+    $('panelCambiar').classList.add('oculto');
+  });
+  $('btnCambiar').addEventListener('click', async () => {
+    const ok = await cambiarClaveCompleta($('cambActual').value, $('cambNueva').value, $('cambRepetir').value, $('msgCambiar'), $('btnCambiar'), false);
+    if (!ok) return;
+    ['cambActual', 'cambNueva', 'cambRepetir'].forEach((id) => { $(id).value = ''; });
+    $('panelCambiar').classList.add('oculto');
+    mostrar($('c-msg'), 'Clave cambiada. Los datos de este equipo quedaron cifrados con la clave nueva.', 'ok');
+  });
+  // Actualiza la app sin desinstalarla: manda cambios pendientes, borra la caché y recarga la versión nueva.
+  $('actualizarApp').addEventListener('click', async () => {
+    const btn = $('actualizarApp');
+    if (cola.length && !navigator.onLine) {
+      alert('Hay ' + cola.length + ' cambio(s) sin enviar y no hay internet. Conéctate primero para no perderlos.');
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Actualizando…';
+    try {
+      await sincronizar();
+      if (cola.length) {
+        alert('Quedaron ' + cola.length + ' cambio(s) sin enviar. Se conservan en el celular; prueba de nuevo con internet.');
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.update().catch(() => {})));
+      }
+      if ('caches' in window) {
+        const claves = await caches.keys();
+        await Promise.all(claves.map((k) => caches.delete(k)));
+      }
+      location.replace(location.pathname + '?actualizado=' + Date.now());
+    } catch (e) {
+      btn.disabled = false; btn.textContent = '🔄 Actualizar aplicación';
+      alert('No se pudo actualizar: ' + e.message);
+    }
+  });
+
+  $('cambiarClave').addEventListener('click', () => {
+    $('panelCambiar').classList.remove('oculto');
+    $('msgCambiar').className = 'msg';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  $('navContactos').addEventListener('click', () => mostrarSeccion('contactos'));
+  $('navMiembros').addEventListener('click', () => mostrarSeccion('miembros'));
+  $('subCRegistrar').addEventListener('click', () => subVista('c', 'registrar'));
+  $('subCPanel').addEventListener('click', () => subVista('c', 'panel'));
+  $('subMRegistrar').addEventListener('click', () => subVista('m', 'registrar'));
+  $('subMLista').addEventListener('click', () => subVista('m', 'lista'));
+  $('c-actualizar').addEventListener('click', cargarTodo);
+  $('btnSync').addEventListener('click', () => cargarTodo());
+  window.addEventListener('online', () => cargarTodo());
+  window.addEventListener('offline', pintarBarra);
+
+  // ---------- Fotos ----------
+  function comprimir(archivo) {
+    return new Promise((resolver, rechazar) => {
+      const url = URL.createObjectURL(archivo);
+      const img = new Image();
+      img.onload = () => {
+        const lado = Math.min(img.width, img.height);
+        const tam = 160;
+        const c = document.createElement('canvas');
+        c.width = tam; c.height = tam;
+        c.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, tam, tam);
+        let q = 0.72;
+        let data = c.toDataURL('image/jpeg', q);
+        while (data.length > 30000 && q > 0.3) { q -= 0.1; data = c.toDataURL('image/jpeg', q); }
+        URL.revokeObjectURL(url);
+        resolver(data);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rechazar(new Error('No pude leer la imagen.')); };
+      img.src = url;
+    });
+  }
+
+  function pintarFoto(entidad) {
+    const prev = $e(entidad, 'foto-prev');
+    prev.innerHTML = foto[entidad] ? '<img src="' + foto[entidad] + '" alt="Foto">' : 'Sin foto';
+    $e(entidad, 'foto-quitar').style.display = foto[entidad] ? '' : 'none';
+  }
+
+  ['contacto', 'miembro'].forEach((entidad) => {
+    $e(entidad, 'foto-input').addEventListener('change', async function (ev) {
+      const archivo = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!archivo) return;
+      try {
+        foto[entidad] = await comprimir(archivo);
+        fotoNueva[entidad] = true;
+        pintarFoto(entidad);
+      } catch (e) {
+        mostrar($e(entidad, 'msg'), e.message, 'error');
+      }
+    });
+    $e(entidad, 'foto-quitar').addEventListener('click', () => {
+      foto[entidad] = ''; fotoNueva[entidad] = false; pintarFoto(entidad);
+    });
+  });
+
+  // ---------- Formularios ----------
+  function leerForm(entidad) {
+    const form = $e(entidad, 'form');
+    const d = {};
+    CONF[entidad].campos.forEach((k) => {
+      const el = form.elements[k];
+      d[k] = el ? limpio(el.value) : '';
+    });
+    d.foto = foto[entidad] || '';
+    return d;
+  }
+
+  function resetForm(entidad) {
+    $e(entidad, 'form').reset();
+    foto[entidad] = ''; fotoNueva[entidad] = false;
+    $e(entidad, 'permiso').checked = false;
+    Object.keys(CONF[entidad].defectos).forEach((k) => { $e(entidad, 'form').elements[k].value = CONF[entidad].defectos[k]; });
+    pintarFoto(entidad);
+  }
+
+  function editar(entidad, id) {
+    const c = datos[entidad].find((x) => x.id === id);
+    if (!c) return;
+    resetForm(entidad);
+    editando[entidad] = id;
+    CONF[entidad].campos.forEach((k) => { const el = $e(entidad, 'form').elements[k]; if (el) el.value = c[k] || ''; });
+    foto[entidad] = c.foto || '';
+    pintarFoto(entidad);
+    $e(entidad, 'bannerTexto').textContent = 'Editando a ' + c.nombre + (c.pendiente ? ' (cambio pendiente de enviar)' : '');
+    $e(entidad, 'banner').classList.remove('oculto');
+    $e(entidad, 'btn').textContent = 'Guardar cambios';
+    subVista(entidad === 'contacto' ? 'c' : 'm', 'registrar');
+    mostrarSeccion(entidad === 'contacto' ? 'contactos' : 'miembros');
+  }
+
+  function salirEdicion(entidad) {
+    editando[entidad] = null;
+    resetForm(entidad);
+    $e(entidad, 'banner').classList.add('oculto');
+    $e(entidad, 'btn').textContent = entidad === 'contacto' ? 'Guardar contacto' : 'Guardar miembro';
+  }
+
+  ['contacto', 'miembro'].forEach((entidad) => {
+    $e(entidad, 'cancelar').addEventListener('click', () => salirEdicion(entidad));
+    $e(entidad, 'form').addEventListener('submit', (ev) => { ev.preventDefault(); guardarRegistro(entidad); });
+  });
+
+  async function guardarRegistro(entidad, forzar) {
+    const d = leerForm(entidad);
+    const msg = $e(entidad, 'msg');
+    const btn = $e(entidad, 'btn');
+    if (!d.nombre) { mostrar(msg, 'Escribe al menos el nombre.', 'error'); return; }
+    if (d.rut) {
+      if (!rutValido(d.rut)) { mostrar(msg, 'El RUT no parece válido. Revísalo o déjalo vacío.', 'error'); return; }
+      d.rut = rutFormato(d.rut);
+    }
+    if (fotoNueva[entidad] && !$e(entidad, 'permiso').checked) {
+      mostrar(msg, 'Antes de guardar, marca que la persona te dio permiso para tomar su foto.', 'error');
+      return;
+    }
+    const idEditado = editando[entidad];
+    const id = idEditado || uid();
+    const creado = new Date().toISOString();
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    try {
+      const accion = idEditado ? 'editar' : 'guardar';
+      const payload = idEditado ? { id: id, datos: d, forzar: !!forzar } : { id: id, datos: d, forzar: !!forzar, creado: creado };
+      let res = await operar(entidad, accion, payload);
+      if (res.error === 'duplicado' && !forzar) {
+        if (confirm(res.mensaje + '\n\n¿Guardar de todos modos?')) {
+          return guardarRegistro(entidad, true);
+        }
+        mostrar(msg, 'No se guardó. Revisa si ya existe ese registro.', 'aviso');
+        return;
+      }
+      if (!res.ok) { mostrar(msg, 'No se guardó: ' + (res.error || 'error desconocido'), 'error'); return; }
+
+      // Actualiza la vista de inmediato.
+      const lista = datos[entidad];
+      if (idEditado) {
+        const i = lista.findIndex((x) => x.id === id);
+        const previo = i !== -1 ? lista[i] : { id: id, fecha: creado };
+        const nuevo = Object.assign({}, previo, d, { id: id, pendiente: !!res.offline });
+        if (i !== -1) lista[i] = nuevo; else lista.push(nuevo);
+        mostrar(msg, res.offline ? 'Sin conexión: el cambio quedó guardado en el celular y se enviará a Drive al volver internet.' : 'Cambios guardados en Drive.', res.offline ? 'aviso' : 'ok');
+      } else {
+        lista.push(Object.assign({ id: id, fecha: creado, pendiente: !!res.offline }, d));
+        mostrar(msg, res.offline ? 'Sin conexión: guardado en el celular, se enviará a Drive al volver internet.' : '¡' + CONF[entidad].nombre + ' guardado!', res.offline ? 'aviso' : 'ok');
+      }
+      const prevEdit = !!idEditado;
+      editando[entidad] = null;
+      resetForm(entidad);
+      $e(entidad, 'banner').classList.add('oculto');
+      $e(entidad, 'btn').textContent = entidad === 'contacto' ? 'Guardar contacto' : 'Guardar miembro';
+      if (prevEdit) mostrar(msg, res.offline ? 'Sin conexión: el cambio quedó guardado en el celular y se enviará a Drive al volver internet.' : 'Cambios guardados en Drive.', res.offline ? 'aviso' : 'ok');
+      guardarLocal();
+      prepararFiltros();
+      pintarTodo();
+      pintarMiembros();
+      pintarBarra();
+      if (!res.offline) cargarTodo();
+      else $e(entidad, 'form').elements.nombre.focus();
+    } catch (err) {
+      mostrar(msg, 'Ocurrió un problema: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editando[entidad] ? 'Guardar cambios' : (entidad === 'contacto' ? 'Guardar contacto' : 'Guardar miembro');
+    }
+  }
+
+  async function eliminarRegistro(entidad, id) {
+    const r = datos[entidad].find((x) => x.id === id);
+    if (!r) return;
+    if (!confirm('¿Eliminar a ' + r.nombre + '?\n\nNo se borra para siempre: queda copiado en la pestaña "Papelera" de la hoja en Drive.')) return;
+    datos[entidad] = datos[entidad].filter((x) => x.id !== id);
+    if (editando[entidad] === id) salirEdicion(entidad);
+    guardarLocal(); pintarTodo(); pintarMiembros();
+    const res = await operar(entidad, 'eliminar', { id: id });
+    if (!res.ok) { alert('No se pudo eliminar en Drive: ' + res.error); cargarTodo(); return; }
+    if (!res.offline) cargarTodo();
+    pintarBarra();
+  }
+
+  // Delegación de eventos en las listas.
+  function accionesLista(entidad) {
+    return function (ev) {
+      const b = ev.target.closest('[data-accion]');
+      if (!b) return;
+      const id = b.getAttribute('data-id');
+      if (b.getAttribute('data-accion') === 'editar') editar(entidad, id);
+      else eliminarRegistro(entidad, id);
+    };
+  }
+  $('contacto-lista').addEventListener('click', accionesLista('contacto'));
+  $('miembro-lista').addEventListener('click', accionesLista('miembro'));
+
+  // ---------- Filtros de contactos ----------
+  function valoresUnicos(campo) {
+    const s = new Set(datos.contacto.map((c) => limpio(c[campo])).filter(Boolean));
+    return Array.from(s).sort((a, b) => a.localeCompare(b, 'es'));
+  }
+  function llenar(selId, titulo, valores, valorActual) {
+    const sel = $(selId);
+    sel.innerHTML = '<option value="">' + titulo + '</option>' + valores.map((v) => '<option' + (v === valorActual ? ' selected' : '') + '>' + esc(v) + '</option>').join('');
+    if (valorActual && valores.indexOf(valorActual) === -1) sel.value = '';
+  }
+  function prepararFiltros() {
+    const act = { tipo: $('c-tipo').value, pais: $('c-pais').value, ciudad: $('c-ciudad').value, estado: $('c-estado').value, prio: $('c-prio').value };
+    llenar('c-tipo', 'Todos los tipos', valoresUnicos('tipo'), act.tipo);
+    llenar('c-pais', 'Todos los países', valoresUnicos('pais'), act.pais);
+    llenar('c-ciudad', 'Todas las ciudades', valoresUnicos('ciudad'), act.ciudad);
+    llenar('c-estado', 'Todos los estados', valoresUnicos('estado'), act.estado);
+    llenar('c-prio', 'Todas las prioridades', valoresUnicos('prioridad'), act.prio);
+    const mEst = $('m-estado').value, mRol = $('m-rol').value;
+    const estM = Array.from(new Set(datos.miembro.map((m) => limpio(m.estado)).filter(Boolean)));
+    const rolM = Array.from(new Set(datos.miembro.map((m) => limpio(m.rol)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es'));
+    llenar('m-estado', 'Todos los estados', estM, mEst);
+    llenar('m-rol', 'Todos los roles', rolM, mRol);
+  }
+
+  ['c-tipo', 'c-pais', 'c-ciudad', 'c-estado', 'c-prio', 'c-orden'].forEach((id) => $(id).addEventListener('change', pintarTodo));
+  $('c-buscar').addEventListener('input', pintarTodo);
+  $('c-seguim').addEventListener('click', () => { $('c-seguim').classList.toggle('on'); pintarTodo(); });
+  $('c-limpiar').addEventListener('click', () => {
+    ['c-tipo', 'c-pais', 'c-ciudad', 'c-estado', 'c-prio'].forEach((id) => { $(id).value = ''; });
+    $('c-buscar').value = ''; $('c-seguim').classList.remove('on');
+    pintarTodo();
+  });
+  ['m-estado', 'm-rol'].forEach((id) => $(id).addEventListener('change', pintarMiembros));
+  $('m-buscar').addEventListener('input', pintarMiembros);
+  $('m-limpiar').addEventListener('click', () => { $('m-estado').value = ''; $('m-rol').value = ''; $('m-buscar').value = ''; pintarMiembros(); });
+
+  function filtrados() {
+    const q = limpio($('c-buscar').value).toLowerCase();
+    const seg = $('c-seguim').classList.contains('on');
+    const lista = datos.contacto.filter((c) =>
+      (!$('c-tipo').value || c.tipo === $('c-tipo').value) &&
+      (!$('c-pais').value || c.pais === $('c-pais').value) &&
+      (!$('c-ciudad').value || c.ciudad === $('c-ciudad').value) &&
+      (!$('c-estado').value || c.estado === $('c-estado').value) &&
+      (!$('c-prio').value || c.prioridad === $('c-prio').value) &&
+      (!seg || esSeguimiento(c)) &&
+      coincide(q, [c.nombre, c.cargo, c.empresa, c.sector, c.ciudad, c.pais, c.correo, c.notas, c.rut, c.interes, c.proxima])
+    );
+    const orden = $('c-orden').value;
+    const cmp = {
+      recientes: (a, b) => String(b.fecha).localeCompare(String(a.fecha)),
+      nombre: (a, b) => a.nombre.localeCompare(b.nombre, 'es'),
+      prioridad: (a, b) => (PRIORIDAD_ORDEN[a.prioridad] ?? 3) - (PRIORIDAD_ORDEN[b.prioridad] ?? 3),
+      ultimo: (a, b) => (a.ultimo || '0000').localeCompare(b.ultimo || '0000')
+    }[orden];
+    return lista.sort(cmp);
+  }
+
+  // ---------- Utilidades de conteo ----------
+  function contar(lista, campo, etiquetaVacia) {
+    const m = {};
+    lista.forEach((c) => {
+      const v = limpio(c[campo]) || etiquetaVacia || 'Sin dato';
+      m[v] = (m[v] || 0) + 1;
+    });
+    return Object.keys(m).map((k) => ({ k: k, n: m[k] })).sort((a, b) => b.n - a.n);
+  }
+
+  function animar(el, valor) {
+    const inicio = parseInt(el.textContent, 10) || 0;
+    const t0 = performance.now();
+    const dur = 600;
+    function paso(t) {
+      const p = Math.min(1, (t - t0) / dur);
+      el.textContent = Math.round(inicio + (valor - inicio) * p);
+      if (p < 1) requestAnimationFrame(paso);
+    }
+    requestAnimationFrame(paso);
+  }
+
+  // ---------- Gráficos ----------
+  function dibujar(id, tipo, etiquetas, valores, opciones) {
+    if (typeof Chart === 'undefined' || !$(id)) return;
+    if (graficos[id]) graficos[id].destroy();
+    const ctx = $(id).getContext('2d');
+    const base = {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: tipo === 'doughnut', position: 'bottom', labels: { boxWidth: 12, color: '#15233b', font: { weight: '600' } } },
+        tooltip: { backgroundColor: '#15233b', padding: 10, cornerRadius: 10 } },
+      animation: { duration: 900, easing: 'easeOutQuart' }
+    };
+    if (tipo !== 'doughnut') {
+      base.scales = {
+        x: { grid: { display: false }, ticks: { color: '#5b6b82', precision: 0 } },
+        y: { grid: { color: 'rgba(10,78,163,.08)' }, ticks: { color: '#5b6b82', precision: 0 }, beginAtZero: true }
+      };
+    }
+    const cfg = {
+      type: tipo,
+      data: { labels: etiquetas, datasets: [{ data: valores, backgroundColor: etiquetas.map((_, i) => PALETA[i % PALETA.length]), borderRadius: tipo === 'bar' ? 8 : 0, borderWidth: tipo === 'doughnut' ? 2 : 0, borderColor: '#fff', maxBarThickness: 26, fill: tipo === 'line', tension: .35, pointRadius: 4 }] },
+      options: Object.assign(base, opciones || {})
+    };
+    if (tipo === 'line') {
+      cfg.data.datasets[0].borderColor = '#7c5cff';
+      cfg.data.datasets[0].backgroundColor = 'rgba(124,92,255,.18)';
+    }
+    if (tipo === 'doughnut') { cfg.options.cutout = '62%'; }
+    graficos[id] = new Chart(ctx, cfg);
+  }
+
+  function pintarGraficos(lista) {
+    const tipos = contar(lista, 'tipo');
+    dibujar('cTipo', 'doughnut', tipos.map((t) => t.k), tipos.map((t) => t.n));
+
+    const ce = contar(lista, 'estado');
+    const etqE = ESTADOS_CONTACTO.filter((e) => ce.some((x) => x.k === e));
+    const valE = etqE.map((e) => ce.find((x) => x.k === e).n);
+    dibujar('cEstado', 'bar', etqE.length ? etqE : ['Sin datos'], valE.length ? valE : [0], { indexAxis: 'y' });
+
+    [['cPais', 'pais'], ['cCiudad', 'ciudad'], ['cCargo', 'cargo'], ['cSector', 'sector']].forEach(([id, campo]) => {
+      const top = contar(lista, campo).slice(0, 10);
+      dibujar(id, 'bar', top.map((x) => x.k), top.map((x) => x.n), { indexAxis: 'y' });
+    });
+
+    const prio = contar(lista, 'prioridad');
+    dibujar('cPrioridad', 'doughnut', prio.map((x) => x.k), prio.map((x) => x.n));
+
+    const meses = {};
+    lista.forEach((c) => {
+      const f = new Date(c.fecha);
+      if (isNaN(f)) return;
+      const k = f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0');
+      meses[k] = (meses[k] || 0) + 1;
+    });
+    const claves = Object.keys(meses).sort();
+    dibujar('cMes', 'line', claves.length ? claves : ['Sin datos'], claves.length ? claves.map((k) => meses[k]) : [0]);
+  }
+
+  // ---------- Listas ----------
+  function chipPrio(p) {
+    const k = (p || '').toLowerCase();
+    const cl = k === 'alta' ? 'alta' : k === 'baja' ? 'baja' : 'media';
+    return p ? '<span class="chip ' + cl + '">Prioridad ' + esc(p) + '</span>' : '';
+  }
+  function chipPendiente(r) { return r.pendiente ? '<span class="chip pend">⏳ por enviar</span>' : ''; }
+  function fotoHTML(r, clase) {
+    return r.foto ? '<img class="' + clase + '" src="' + r.foto + '" alt="">' : '';
+  }
+  function botonesComunes(r, entidad) {
+    const tel = limpio(r.telefono).replace(/[^\d+]/g, '');
+    const wa = tel ? 'https://wa.me/' + tel.replace(/^\+/, '') : '';
+    const web = limpio(r.web);
+    const webUrl = web ? (/^https?:\/\//.test(web) ? web : 'https://' + web) : '';
+    return (tel ? '<a href="tel:' + esc(tel) + '">📞 Llamar</a><a href="' + esc(wa) + '" target="_blank" rel="noopener">💬 WhatsApp</a>' : '') +
+      (limpio(r.correo) ? '<a href="mailto:' + esc(r.correo) + '">✉️ Correo</a>' : '') +
+      (webUrl ? '<a href="' + esc(webUrl) + '" target="_blank" rel="noopener">🔗 Perfil</a>' : '') +
+      '<button class="sec" data-accion="editar" data-id="' + esc(r.id) + '">✏️ Editar</button>' +
+      '<button class="sec peligro" data-accion="eliminar" data-id="' + esc(r.id) + '">🗑 Eliminar</button>';
+  }
+
+  function pintarListaContactos(lista) {
+    $('c-conteo').textContent = lista.length + ' de ' + datos.contacto.length;
+    if (!lista.length) {
+      $('contacto-lista').innerHTML = '<div class="vacio">' + (datos.contacto.length ? 'Ningún contacto coincide con los filtros.' : 'Aún no hay contactos. Registra el primero ✨') + '</div>';
+      return;
+    }
+    $('contacto-lista').innerHTML = lista.map((c) => {
+      return '<div class="contacto">' +
+        '<div class="cab-tarjeta">' + fotoHTML(c, 'foto-circ') +
+        '<div class="texto"><b>' + esc(c.nombre) + '</b>' +
+        (c.cargo || c.empresa ? '<div class="dato">' + esc([c.cargo, c.empresa].filter(Boolean).join(' · ')) + '</div>' : '') +
+        '</div></div>' +
+        '<div>' + (c.tipo ? '<span class="chip tipo">' + esc(c.tipo) + '</span>' : '') +
+          (c.estado ? '<span class="chip est">' + esc(c.estado) + '</span>' : '') + chipPrio(c.prioridad) +
+          (esSeguimiento(c) ? '<span class="chip seg">⏰ seguimiento</span>' : '') + chipPendiente(c) + '</div>' +
+        ((c.pais || c.ciudad) ? '<div class="dato">📍 ' + esc([c.ciudad, c.pais].filter(Boolean).join(', ')) + '</div>' : '') +
+        (c.sector ? '<div class="dato">Sector: ' + esc(c.sector) + '</div>' : '') +
+        (c.como ? '<div class="dato">Nos conocimos: ' + esc(c.como) + '</div>' : '') +
+        (c.interes ? '<div class="dato">Interés: ' + esc(c.interes) + '</div>' : '') +
+        (c.proxima ? '<div class="dato">Próxima acción: ' + esc(c.proxima) + '</div>' : '') +
+        (c.ultimo ? '<div class="dato">Último contacto: ' + esc(c.ultimo) + '</div>' : '') +
+        (c.notas ? '<div class="dato">Notas: ' + esc(c.notas) + '</div>' : '') +
+        '<div class="acciones">' + botonesComunes(c, 'contacto') + '</div></div>';
+    }).join('');
+  }
+
+  function pintarListaMiembros(lista) {
+    $('m-conteo').textContent = lista.length + ' de ' + datos.miembro.length;
+    if (!lista.length) {
+      $('miembro-lista').innerHTML = '<div class="vacio">' + (datos.miembro.length ? 'Ningún miembro coincide con los filtros.' : 'Aún no hay miembros registrados.') + '</div>';
+      return;
+    }
+    $('miembro-lista').innerHTML = lista.map((m) => {
+      return '<div class="contacto">' +
+        '<div class="cab-tarjeta">' + fotoHTML(m, 'foto-circ') +
+        '<div class="texto"><b>' + esc(m.nombre) + '</b>' +
+        ((m.rol || m.cargo || m.institucion) ? '<div class="dato">' + esc([m.rol, m.cargo, m.institucion].filter(Boolean).join(' · ')) + '</div>' : '') +
+        '</div></div>' +
+        '<div>' + (m.rol ? '<span class="chip tipo">' + esc(m.rol) + '</span>' : '') +
+          (m.estado ? '<span class="chip est">' + esc(m.estado) + '</span>' : '') + chipPendiente(m) + '</div>' +
+        ((m.pais || m.ciudad) ? '<div class="dato">📍 ' + esc([m.ciudad, m.pais].filter(Boolean).join(', ')) + '</div>' : '') +
+        (m.area ? '<div class="dato">Área: ' + esc(m.area) + '</div>' : '') +
+        (m.ingreso ? '<div class="dato">Ingreso: ' + esc(m.ingreso) + '</div>' : '') +
+        (m.notas ? '<div class="dato">Notas: ' + esc(m.notas) + '</div>' : '') +
+        '<div class="acciones">' + botonesComunes(m, 'miembro') + '</div></div>';
+    }).join('');
+  }
+
+  // ---------- Exportar e importar ----------
+  function descargarCSV(nombre, cols, filas) {
+    const csv = [cols.join(',')].concat(filas.map((r) => cols.map((k) => '"' + String(r[k] || '').replace(/"/g, '""') + '"').join(','))).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  $('c-exportar').addEventListener('click', () => {
+    descargarCSV('contactos.csv', CONF.contacto.campos.filter((k) => k !== 'foto'), filtrados());
+  });
+  $('m-exportar').addEventListener('click', () => {
+    descargarCSV('miembros.csv', CONF.miembro.campos.filter((k) => k !== 'foto'), datos.miembro);
+  });
+
+  function parseCSV(texto) {
+    const primera = texto.split(/\r?\n/)[0] || '';
+    const sep = (primera.match(/;/g) || []).length > (primera.match(/,/g) || []).length ? ';' : ',';
+    const filas = [];
+    let fila = [], campo = '', comillas = false;
+    for (let i = 0; i < texto.length; i++) {
+      const ch = texto[i];
+      if (comillas) {
+        if (ch === '"' && texto[i + 1] === '"') { campo += '"'; i++; }
+        else if (ch === '"') comillas = false;
+        else campo += ch;
+      } else if (ch === '"') comillas = true;
+      else if (ch === sep) { fila.push(campo); campo = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && texto[i + 1] === '\n') i++;
+        fila.push(campo); filas.push(fila); fila = []; campo = '';
+      } else campo += ch;
+    }
+    if (campo || fila.length) { fila.push(campo); filas.push(fila); }
+    return filas.filter((f) => f.some((c) => limpio(c)));
+  }
+  function normalizar(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
+  function fechaCSV(v) {
+    const t = limpio(v);
+    const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t);
+    if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+    return t;
+  }
+
+  $('c-importar').addEventListener('click', () => $('c-csv').click());
+  $('c-csv').addEventListener('change', async (ev) => {
+    const archivo = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!archivo) return;
+    const filas = parseCSV(await archivo.text());
+    if (filas.length < 2) { mostrar($('c-msg'), 'El archivo no tiene filas para importar.', 'error'); return; }
+    const cabecera = filas[0].map((h) => ALIAS_CSV[normalizar(h)] || '');
+    if (cabecera.indexOf('nombre') === -1) { mostrar($('c-msg'), 'No encontré una columna de nombre en el archivo.', 'error'); return; }
+    const lista = filas.slice(1).map((f) => {
+      const o = {};
+      cabecera.forEach((campo, i) => { if (campo) o[campo] = campo === 'ultimo' ? fechaCSV(f[i]) : limpio(f[i]); });
+      return o;
+    }).filter((o) => limpio(o.nombre));
+    if (!confirm('Se importarán ' + lista.length + ' contactos. Los que ya existan (mismo correo o mismo nombre y empresa) se omitirán. ¿Continuar?')) return;
+    let agregados = 0; const omitidos = [];
+    mostrar($('c-msg'), 'Importando…', 'aviso');
+    for (let i = 0; i < lista.length; i += 200) {
+      const res = await operar('contacto', 'importar', { lista: lista.slice(i, i + 200) }, true);
+      if (!res.ok) { mostrar($('c-msg'), 'La importación se detuvo: ' + res.error, 'error'); await cargarTodo(); return; }
+      agregados += res.agregados; omitidos.push(...(res.omitidos || []));
+    }
+    mostrar($('c-msg'), 'Importados: ' + agregados + ' · Omitidos: ' + omitidos.length + (omitidos.length ? ' (ya existían o tenían errores)' : ''), omitidos.length ? 'aviso' : 'ok');
+    cargarTodo();
+  });
+
+  // ---------- Pintado principal ----------
+  function pintarTodo() {
+    const filtrada = filtrados();
+    const tipoSel = $('c-tipo').value;
+    const total = datos.contacto.length;
+
+    animar($('kGlobal'), total);
+    $('kTipoLabel').textContent = tipoSel ? 'TOTAL DE ' + tipoSel.toUpperCase() : 'TOTAL POR TIPO';
+    const nTipo = tipoSel ? datos.contacto.filter((c) => c.tipo === tipoSel).length : total;
+    animar($('kTipo'), nTipo);
+    $('kTipoSub').textContent = total ? Math.round(nTipo / total * 100) + '% del total global' : '—';
+
+    animar($('kFiltro'), filtrada.length);
+    $('kFiltroSub').textContent = total ? Math.round(filtrada.length / total * 100) + '% del total global' : '—';
+    animar($('kAlta'), filtrada.filter((c) => c.prioridad === 'Alta').length);
+    animar($('kSeg'), datos.contacto.filter(esSeguimiento).length);
+    animar($('kColab'), filtrada.filter((c) => c.estado === 'Colaborador activo').length);
+
+    pintarGraficos(filtrada);
+    pintarListaContactos(filtrada);
+  }
+
+  function pintarMiembros() {
+    const q = limpio($('m-buscar').value).toLowerCase();
+    const est = $('m-estado').value, rol = $('m-rol').value;
+    const lista = datos.miembro.filter((m) =>
+      (!est || m.estado === est) && (!rol || m.rol === rol) &&
+      coincide(q, [m.nombre, m.rol, m.cargo, m.institucion, m.area, m.ciudad, m.pais, m.correo, m.notas, m.rut])
+    ).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    const todos = datos.miembro;
+    animar($('mTotal'), todos.length);
+    animar($('mActivo'), todos.filter((m) => m.estado === 'Activo').length);
+    animar($('mConfirmar'), todos.filter((m) => m.estado === 'Por confirmar').length);
+    animar($('mInactivo'), todos.filter((m) => m.estado === 'Inactivo').length);
+    const roles = contar(todos, 'rol', 'Sin rol');
+    dibujar('cMRol', 'doughnut', roles.map((x) => x.k), roles.map((x) => x.n));
+    const estados = contar(todos, 'estado', 'Sin estado');
+    dibujar('cMEstado', 'bar', estados.map((x) => x.k), estados.map((x) => x.n), { indexAxis: 'y' });
+    pintarListaMiembros(lista);
+  }
+
+  // Borra solo lo cifrado de este equipo. Los contactos siguen en la hoja de Drive.
+  $('resetLocal').addEventListener('click', () => {
+    if (!confirm('Se borrarán los datos guardados en este equipo (los que estén sin enviar a Drive se perderán). Los contactos ya guardados siguen en la hoja de Drive. ¿Continuar?')) return;
+    [BLOQUE_KEY, SAL_KEY, HUELLA_KEY, INTENTOS_KEY, COLA_KEY, DATOS_KEY].forEach((k) => localStorage.removeItem(k));
+    LEGADO_KEYS.forEach((k) => localStorage.removeItem(k));
+    mostrarPantalla();
+  });
+  $('usarClave').addEventListener('click', () => { modoClave = true; mostrarPantalla(); });
+  $('btnHuella').addEventListener('click', entrarConHuella);
+  $('activarHuella').addEventListener('click', activarHuella);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js'); });
+  }
+
+  mostrarPantalla();
+</script>
+</body>
+</html>
